@@ -8,6 +8,9 @@ import ru.appline.logic.pets.PetModel;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Стартует на http://localhost:8081/
+ */
 @RestController
 public class Controller {
     private static final PetModel petModel = PetModel.getInstance();
