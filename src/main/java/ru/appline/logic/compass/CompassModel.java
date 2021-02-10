@@ -48,6 +48,7 @@ public class CompassModel implements Serializable {
     }
 
     public void setDirections(Map<String, String> directions) {
+        this.directions.clear();
         Map<String, String> direction = new HashMap<>();
         directions.forEach((k, v) -> {
             direction.put("name", k);
