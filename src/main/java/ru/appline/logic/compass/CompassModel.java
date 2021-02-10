@@ -24,17 +24,26 @@ public class CompassModel implements Serializable {
         return directions;
     }
 
-    public Map<String, String> getDirection(int degree) {
+    public Map<String, String> getDirection(double degree) {
         Map<String, String> direction = new HashMap<>();
-        if (directions.isEmpty()) {
-            return null;
-        }
-        direction.put("Side", directions.stream()
-                .filter(e -> Integer.parseInt(e.get("min")) <= degree % 360)
-                .filter(e -> Integer.parseInt(e.get("max")) >= degree % 360)
-                .map(e -> e.get("name"))
-                .findFirst()
-                .orElse("North"));
+        // Преобразуем любой по величине и знаку угол в запросе к значению от 0 до 360.
+        double convertedDegree = (degree % 360 + 360) % 360;
+        // Для диапазона, внутри которого 360 переходит в 0, условие проверки иное, чем для других. Поэтому сначала
+        // проверяем попадание заданного значения в остальные диапазоны. Если в них не попадает, то проверяем попадание
+        // в диапазон, содержащий 0. Если в этот тоже не попадает, значит, диапазоны не заданы или заданы неверно.
+        directions.stream()
+                .filter(side -> convertedDegree >= getMin(side) && convertedDegree <= getMax(side))
+                .map(side -> side.get("name"))
+                .peek(sideName -> direction.put("Side", sideName))
+                .findAny()
+                .orElseGet(() -> directions.stream()
+                        .filter(side -> getMin(side) > getMax(side))
+                        .filter(side -> convertedDegree >= getMin(side) || convertedDegree <= getMax(side))
+                        .map(side -> side.get("name"))
+                        .peek(sideName -> direction.put("Side", sideName))
+                        .findAny()
+                        .orElseGet(() -> direction.put("Ошибка", (directions.isEmpty() ? "Не" : "Некорректно")
+                                + " заданы дипазоны значений для компаса, задайте их через сервис /setDirections!")));
         return direction;
     }
 
@@ -46,5 +55,13 @@ public class CompassModel implements Serializable {
             direction.put("max", v.replaceFirst("\\d+-", ""));
             this.directions.add(new HashMap<>(direction));
         });
+    }
+
+    private double getMin(Map<String, String> map) {
+        return Double.parseDouble(map.get("min"));
+    }
+
+    private double getMax(Map<String, String> map) {
+        return Double.parseDouble(map.get("max"));
     }
 }

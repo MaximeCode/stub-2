@@ -56,7 +56,11 @@ public class Controller {
     }
 
     /**
-     * @example {"North": "338-22", "North-East": "23-67", "East": "68-112", "South-East": "113-157", "South": "158-202", "South-West": "203-247", "West": "248-292", "North-West": "293-337"}
+     * @example Корректный запрос:
+     * {"North": "338-22", "North-East": "23-67", "East": "68-112", "South-East": "113-157", "South": "158-202", "South-West": "203-247", "West": "248-292", "North-West": "293-337"}
+     * @example Некорректный запрос (получим ошибку при значениях "Degree" от 23 до 337 в запросе /getDirection):
+     * {"North": "338-22"}
+     * @example Некорректный запрос (получим ошибку при запросе /getDirection): {}
      */
     @PostMapping(value = "/setDirections", consumes = "application/json")
     public Set<Map<String, String>> setDirections(@RequestBody Map<String, String> directions) {
@@ -68,7 +72,7 @@ public class Controller {
      * @example {"Degree": 123}
      */
     @GetMapping(value = "/getDirection", consumes = "application/json")
-    public Map<String, String> getDirection(@RequestBody Map<String, Integer> degree) {
+    public Map<String, String> getDirection(@RequestBody Map<String, Double> degree) {
         return compassModel.getDirection(degree.get("Degree"));
     }
 }
