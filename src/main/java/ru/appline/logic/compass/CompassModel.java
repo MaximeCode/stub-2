@@ -31,19 +31,17 @@ public class CompassModel implements Serializable {
         // Для диапазона, внутри которого 360 переходит в 0, условие проверки иное, чем для других. Поэтому сначала
         // проверяем попадание заданного значения в остальные диапазоны. Если в них не попадает, то проверяем попадание
         // в диапазон, содержащий 0. Если в этот тоже не попадает, значит, диапазоны не заданы или заданы неверно.
-        directions.stream()
+        direction.put("Side", directions.stream()
                 .filter(side -> convertedDegree >= getMin(side) && convertedDegree <= getMax(side))
                 .map(side -> side.get("name"))
-                .peek(sideName -> direction.put("Side", sideName))
-                .findAny()
-                .orElseGet(() -> directions.stream()
+                .findFirst()
+                .orElse(directions.stream()
                         .filter(side -> getMin(side) > getMax(side))
                         .filter(side -> convertedDegree >= getMin(side) || convertedDegree <= getMax(side))
                         .map(side -> side.get("name"))
-                        .peek(sideName -> direction.put("Side", sideName))
-                        .findAny()
-                        .orElseGet(() -> direction.put("Ошибка", (directions.isEmpty() ? "Не" : "Некорректно")
-                                + " заданы дипазоны значений для компаса, задайте их через сервис /setDirections!")));
+                        .findFirst()
+                        .orElse("Ошибка: не" + (directions.isEmpty() ? "" : "корректно")
+                                + " заданы дипазоны значений для компаса. Задайте их через сервис /setDirections!")));
         return direction;
     }
 
